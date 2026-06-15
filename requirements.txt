@@ -1,0 +1,18 @@
+# --- core automation ---
+playwright>=1.44
+PyYAML>=6.0
+python-dotenv>=1.0
+openai>=1.30
+
+# --- local web app ---
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9
+
+# --- resume parsing & generation ---
+pypdf>=4.2
+python-docx>=1.1
+
+# --- CLI (optional, the web UI is the main interface) ---
+typer>=0.12
+rich>=13.7
