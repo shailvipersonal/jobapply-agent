@@ -1,0 +1,67 @@
+# ============================================================================
+#  YOUR APPLICATION PROFILE  --  fill this in ONCE.
+#  Copy this file to "config/profile.yaml" (which is gitignored) and edit it.
+#  The agent uses these values to fill out job application forms automatically.
+# ============================================================================
+
+personal:
+  first_name: "Jane"
+  last_name: "Doe"
+  full_name: "Jane Doe"
+  email: "jane.doe@example.com"
+  phone: "+1 555 123 4567"
+
+location:
+  address_line1: "123 Main St"
+  city: "San Francisco"
+  state: "CA"
+  postal_code: "94105"
+  country: "United States"
+
+links:
+  linkedin: "https://www.linkedin.com/in/janedoe"
+  github: "https://github.com/janedoe"
+  portfolio: "https://janedoe.dev"
+  website: ""
+
+# Absolute path to your resume / CV file. Used for file-upload fields.
+documents:
+  resume_path: "C:/Users/you/Documents/resume.pdf"
+  cover_letter_path: ""   # optional
+
+work_authorization:
+  authorized_to_work: "Yes"
+  require_sponsorship: "No"
+  willing_to_relocate: "Yes"
+  remote_ok: "Yes"
+
+experience:
+  current_title: "Software Engineer"
+  current_company: "Acme Corp"
+  years_experience: "5"
+  desired_salary: ""        # leave blank to skip
+  notice_period: "2 weeks"
+  earliest_start_date: ""   # e.g. "2026-07-01"
+
+education:
+  highest_degree: "Bachelor's Degree"
+  field_of_study: "Computer Science"
+  school: "State University"
+  graduation_year: "2019"
+
+# Free-text answers the agent can use for open-ended questions
+# (e.g. "Why do you want to work here?"). Keep these generic & reusable.
+answers:
+  default_cover_note: >
+    I'm excited about this opportunity and believe my background in software
+    engineering makes me a strong fit. I'd welcome the chance to contribute and
+    learn more about the team.
+  how_did_you_hear: "Company website"
+
+# Equal-opportunity / demographic questions. Set to "Decline to self-identify"
+# if you prefer not to answer; the agent will pick that option when available.
+demographics:
+  gender: "Decline to self-identify"
+  race_ethnicity: "Decline to self-identify"
+  veteran_status: "Decline to self-identify"
+  disability_status: "Decline to self-identify"

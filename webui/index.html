@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Job Apply Agent</title>
+<style>
+  :root {
+    --bg: #0b1020; --panel: #141a2e; --panel2: #1b2238; --line: #283150;
+    --txt: #e7ecf6; --muted: #9aa6c4; --accent: #6d8bff; --accent2: #8b5cf6;
+    --good: #34d399; --warn: #fbbf24; --bad: #f87171; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 70% -10%, #1c2547 0%, var(--bg) 55%);
+    color: var(--txt); min-height: 100vh;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; background: rgba(11,16,32,.85); backdrop-filter: blur(8px); z-index: 10;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; }
+  .logo { width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: grid; place-items: center; font-size: 18px; }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { font-size: 12px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--muted); }
+  .pill.on { color: var(--good); border-color: rgba(52,211,153,.4); }
+  .pill.off { color: var(--bad); border-color: rgba(248,113,113,.35); }
+  main { max-width: 980px; margin: 0 auto; padding: 26px 20px 80px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 22px; flex-wrap: wrap; }
+  .tab { padding: 10px 16px; border-radius: 10px; cursor: pointer; color: var(--muted);
+    border: 1px solid transparent; font-weight: 600; font-size: 14px; }
+  .tab:hover { color: var(--txt); }
+  .tab.active { color: #fff; background: var(--panel2); border-color: var(--line); }
+  .panel { display: none; animation: fade .25s ease; }
+  .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px; margin-bottom: 18px; }
+  .card h2 { margin: 0 0 4px; font-size: 17px; }
+  .card p.sub { margin: 0 0 16px; color: var(--muted); font-size: 13px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 680px) { .grid, .grid.three { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  input, select, textarea {
+    width: 100%; background: var(--panel2); border: 1px solid var(--line); color: var(--txt);
+    border-radius: 9px; padding: 10px 12px; font-size: 14px; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 90px; }
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--accent); margin: 18px 0 10px; font-weight: 700; }
+  button.btn { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+    border: none; padding: 11px 18px; border-radius: 10px; font-weight: 700; font-size: 14px;
+    cursor: pointer; }
+  button.btn:hover { filter: brightness(1.08); }
+  button.btn:disabled { opacity: .5; cursor: not-allowed; }
+  button.ghost { background: var(--panel2); border: 1px solid var(--line); color: var(--txt); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .check { display: flex; gap: 8px; align-items: center; }
+  .check input { width: auto; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+  .badge.High { background: rgba(52,211,153,.15); color: var(--good); }
+  .badge.Medium { background: rgba(251,191,36,.15); color: var(--warn); }
+  .badge.Low { background: rgba(248,113,113,.15); color: var(--bad); }
+  .gauge { display: flex; align-items: center; gap: 16px; }
+  .score { font-size: 42px; font-weight: 800; }
+  .bar { flex: 1; height: 12px; background: var(--panel2); border-radius: 999px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .kw { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .kw span { font-size: 12px; padding: 4px 9px; border-radius: 7px; background: var(--panel2); border: 1px solid var(--line); }
+  .kw.miss span { color: var(--warn); border-color: rgba(251,191,36,.3); }
+  ul.clean { margin: 8px 0 0; padding-left: 18px; color: var(--txt); font-size: 14px; }
+  ul.clean li { margin-bottom: 5px; }
+  .log { background: #0a0f1f; border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+    font-family: ui-monospace, "Cascadia Code", monospace; font-size: 12px; color: var(--muted);
+    white-space: pre-wrap; max-height: 260px; overflow: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  td a { color: var(--accent); text-decoration: none; word-break: break-all; }
+  .st { font-weight: 700; }
+  .st.submitted { color: var(--good); }
+  .st.filled_pending_review { color: var(--warn); }
+  .st.failed, .st.skipped { color: var(--bad); }
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    background: var(--panel2); border: 1px solid var(--line); padding: 12px 18px; border-radius: 10px;
+    color: var(--txt); box-shadow: 0 10px 30px rgba(0,0,0,.4); opacity: 0; transition: .3s; z-index: 50; }
+  .toast.show { opacity: 1; bottom: 32px; }
+  .toast.err { border-color: var(--bad); }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .md { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 16px;
+    white-space: pre-wrap; font-size: 13px; line-height: 1.5; max-height: 420px; overflow: auto; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">⚡</div> My Job Apply Agent</div>
+  <div class="pills" id="pills"></div>
+</header>
+
+<main>
+  <div class="tabs">
+    <div class="tab active" data-tab="setup">1 · Setup</div>
+    <div class="tab" data-tab="resume">2 · Resume &amp; Match</div>
+    <div class="tab" data-tab="apply">3 · Apply</div>
+    <div class="tab" data-tab="history">4 · History</div>
+  </div>
+
+  <!-- SETUP -->
+  <section class="panel active" id="panel-setup">
+    <div class="card">
+      <h2>Your details</h2>
+      <p class="sub">Fill this in once. The agent uses it to complete application forms for you.</p>
+
+      <div class="section-title">Personal</div>
+      <div class="grid">
+        <div><label>First name</label><input id="first_name"></div>
+        <div><label>Last name</label><input id="last_name"></div>
+        <div><label>Email</label><input id="email" type="email"></div>
+        <div><label>Phone</label><input id="phone"></div>
+      </div>
+
+      <div class="section-title">Location</div>
+      <div class="grid">
+        <div><label>Address</label><input id="address_line1"></div>
+        <div><label>City</label><input id="city"></div>
+        <div><label>State / Province</label><input id="state"></div>
+        <div><label>Postal code</label><input id="postal_code"></div>
+        <div><label>Country</label><input id="country"></div>
+      </div>
+
+      <div class="section-title">Links</div>
+      <div class="grid">
+        <div><label>LinkedIn</label><input id="linkedin"></div>
+        <div><label>GitHub</label><input id="github"></div>
+        <div><label>Portfolio / Website</label><input id="portfolio"></div>
+      </div>
+
+      <div class="section-title">Experience &amp; education</div>
+      <div class="grid">
+        <div><label>Current title</label><input id="current_title"></div>
+        <div><label>Current company</label><input id="current_company"></div>
+        <div><label>Years of experience</label><input id="years_experience"></div>
+        <div><label>Desired salary (optional)</label><input id="desired_salary"></div>
+        <div><label>Notice period</label><input id="notice_period"></div>
+        <div><label>Highest degree</label><input id="highest_degree"></div>
+        <div><label>Field of study</label><input id="field_of_study"></div>
+        <div><label>School</label><input id="school"></div>
+        <div><label>Graduation year</label><input id="graduation_year"></div>
+      </div>
+
+      <div class="section-title">Work authorization</div>
+      <div class="grid">
+        <div><label>Authorized to work?</label>
+          <select id="authorized_to_work"><option>Yes</option><option>No</option></select></div>
+        <div><label>Require sponsorship?</label>
+          <select id="require_sponsorship"><option>No</option><option>Yes</option></select></div>
+        <div><label>Willing to relocate?</label>
+          <select id="willing_to_relocate"><option>Yes</option><option>No</option></select></div>
+        <div><label>Open to remote?</label>
+          <select id="remote_ok"><option>Yes</option><option>No</option></select></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Job-portal account</h2>
+      <p class="sub">The login the agent creates/reuses on job sites. Stored only on your computer.</p>
+      <div class="grid">
+        <div><label>Account email</label><input id="account_email" type="email"></div>
+        <div><label>Account password</label><input id="account_password" type="password" placeholder="leave blank to keep existing"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>AI &amp; behavior</h2>
+      <p class="sub">An OpenAI key unlocks smart form-filling, resume scoring, and AI rewriting. Optional but recommended.</p>
+      <div class="grid">
+        <div><label>OpenAI API key</label><input id="openai_api_key" type="password" placeholder="leave blank to keep existing"></div>
+        <div><label>Model</label><input id="openai_model" placeholder="gpt-4o-mini"></div>
+        <div><label>Default submit mode</label>
+          <select id="submit_mode">
+            <option value="review">Review before submitting (safer)</option>
+            <option value="auto">Submit automatically</option>
+          </select></div>
+        <div><label>Show browser window</label>
+          <select id="headless"><option value="false">Yes (recommended)</option><option value="true">No (headless)</option></select></div>
+      </div>
+      <div class="row" style="margin-top:18px">
+        <button class="btn" id="saveSettings">Save setup</button>
+        <span class="hint">Your data stays in local files (gitignored). Nothing is uploaded except optional AI calls.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUME -->
+  <section class="panel" id="panel-resume">
+    <div class="card">
+      <h2>Upload your resume</h2>
+      <p class="sub">PDF, DOCX, TXT, or MD. Used both for scoring and for uploading to applications.</p>
+      <div class="row">
+        <input type="file" id="resumeFile" accept=".pdf,.docx,.txt,.md" style="max-width:340px">
+        <button class="btn" id="uploadResume">Upload</button>
+        <span class="hint" id="resumeStatus"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Score against a job</h2>
+      <p class="sub">Paste the job link (the agent reads the description) or paste the description text.</p>
+      <div><label>Job link</label><input id="analyzeUrl" placeholder="https://boards.greenhouse.io/acme/jobs/123"></div>
+      <div style="margin-top:12px"><label>…or paste job description</label><textarea id="analyzeText" placeholder="Optional: paste the job description here"></textarea></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="analyzeBtn">Analyze my chances</button>
+      </div>
+    </div>
+
+    <div class="card" id="reportCard" style="display:none">
+      <h2 id="reportTitle">Match report</h2>
+      <div class="gauge" style="margin:10px 0 16px">
+        <div class="score" id="scoreNum">0</div>
+        <div class="bar"><span id="scoreBar" style="width:0%"></span></div>
+        <div class="badge" id="chanceBadge">—</div>
+      </div>
+      <p id="reportSummary" style="font-size:14px"></p>
+      <div class="grid">
+        <div>
+          <div class="section-title" style="margin-top:6px">Matched keywords</div>
+          <div class="kw" id="kwMatched"></div>
+        </div>
+        <div>
+          <div class="section-title" style="margin-top:6px">Missing keywords</div>
+          <div class="kw miss" id="kwMissing"></div>
+        </div>
+      </div>
+      <div class="section-title">Strengths</div>
+      <ul class="clean" id="strengths"></ul>
+      <div class="section-title">How to improve</div>
+      <ul class="clean" id="improvements"></ul>
+      <div class="row" style="margin-top:16px">
+        <button class="btn" id="improveBtn">Fix my resume with AI</button>
+        <span class="hint" id="improveHint"></span>
+      </div>
+    </div>
+
+    <div class="card" id="improvedCard" style="display:none">
+      <h2>AI-improved resume</h2>
+      <p class="sub">Tailored to this job. Review it, then download.</p>
+      <div class="row" style="margin-bottom:12px">
+        <a class="btn" id="downloadImproved" href="/api/download/improved">Download .docx</a>
+      </div>
+      <div class="md" id="improvedMd"></div>
+    </div>
+  </section>
+
+  <!-- APPLY -->
+  <section class="panel" id="panel-apply">
+    <div class="card">
+      <h2>Apply to a job</h2>
+      <p class="sub">Paste a job link. The agent opens it, signs in/creates your account, and fills the form.</p>
+      <div><label>Job link</label><input id="applyUrl" placeholder="https://jobs.lever.co/acme/abc-123"></div>
+      <div class="row" style="margin-top:14px">
+        <label class="check"><input type="checkbox" id="autoSubmit"> Submit automatically (otherwise I review first)</label>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="applyBtn">Apply now</button>
+        <span class="hint">A browser window opens so you can watch and handle any CAPTCHA/login.</span>
+      </div>
+    </div>
+
+    <div class="card" id="applyResultCard" style="display:none">
+      <h2 id="applyResultTitle">Result</h2>
+      <p id="applyResultMsg" style="font-size:14px"></p>
+      <div class="row" id="submitRow" style="display:none; margin-bottom:12px">
+        <button class="btn" id="submitNowBtn">Looks good — submit now</button>
+        <span class="hint">Review the form in the opened browser, then submit.</span>
+      </div>
+      <div class="section-title">Fields filled</div>
+      <div class="log" id="applyLog"></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="panel" id="panel-history">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><h2 style="margin:0">Application history</h2></div>
+        <div class="row">
+          <button class="ghost btn" id="refreshHistory">Refresh</button>
+          <a class="ghost btn" href="/api/history.csv">Export CSV</a>
+        </div>
+      </div>
+      <div style="overflow:auto; margin-top:14px">
+        <table>
+          <thead><tr><th>When</th><th>Company</th><th>Title</th><th>Status</th><th>Link</th></tr></thead>
+          <tbody id="historyBody"><tr><td colspan="5" style="color:var(--muted)">No applications yet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const api = async (url, opts={}) => {
+  const r = await fetch(url, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.detail || data.message || ("Error " + r.status));
+  return data;
+};
+function toast(msg, isErr=false) {
+  const t = $("toast"); t.textContent = msg; t.className = "toast show" + (isErr ? " err" : "");
+  setTimeout(() => t.className = "toast", 3200);
+}
+function busy(btn, on, label) {
+  if (on) { btn.dataset.txt = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> ' + (label||'Working…'); }
+  else { btn.disabled = false; btn.innerHTML = btn.dataset.txt; }
+}
+
+// Tabs
+document.querySelectorAll(".tab").forEach(tab => tab.onclick = () => {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  tab.classList.add("active");
+  $("panel-" + tab.dataset.tab).classList.add("active");
+  if (tab.dataset.tab === "history") loadHistory();
+});
+
+const SETTING_IDS = ["first_name","last_name","email","phone","address_line1","city","state",
+  "postal_code","country","linkedin","github","portfolio","current_title","current_company",
+  "years_experience","desired_salary","notice_period","highest_degree","field_of_study","school",
+  "graduation_year","authorized_to_work","require_sponsorship","willing_to_relocate","remote_ok",
+  "account_email","openai_model","submit_mode","headless"];
+
+async function loadSettings() {
+  try {
+    const s = await api("/api/settings");
+    SETTING_IDS.forEach(k => { if ($(k) != null && s[k] != null && s[k] !== "") $(k).value = s[k]; });
+  } catch (e) { /* first run, files may not exist yet */ }
+}
+$("saveSettings").onclick = async (e) => {
+  const payload = {};
+  SETTING_IDS.forEach(k => payload[k] = $(k).value);
+  payload.account_password = $("account_password").value;
+  payload.openai_api_key = $("openai_api_key").value;
+  busy(e.target, true, "Saving…");
+  try { await api("/api/settings", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)});
+        toast("Setup saved."); $("account_password").value=""; $("openai_api_key").value=""; refreshStatus(); }
+  catch (err) { toast(err.message, true); }
+  finally { busy(e.target, false); }
+};
+
+// Status pills
+async function refreshStatus() {
+  try {
+    const s = await api("/api/status");
+    const pills = [
+      ["Profile", s.profile_ready], ["Resume", s.resume_uploaded], ["AI", s.llm_enabled],
+    ];
+    $("pills").innerHTML = pills.map(([n,on]) =>
+      `<span class="pill ${on?'on':'off'}">${on?'●':'○'} ${n}</span>`).join("")
+      + `<span class="pill">mode: ${s.submit_mode}</span>`;
+    if (s.resume_uploaded) $("resumeStatus").textContent = "Loaded: " + s.resume_name;
+  } catch (e) {}
+}
+
+// Resume upload
+$("uploadResume").onclick = async (e) => {
+  const f = $("resumeFile").files[0];
+  if (!f) return toast("Choose a file first.", true);
+  const fd = new FormData(); fd.append("file", f);
+  busy(e.target, true, "Uploading…");
+  try { const d = await api("/api/resume", {method:"POST", body: fd});
+        $("resumeStatus").textContent = `Loaded: ${d.name} (${d.characters.toLocaleString()} chars)`;
+        toast("Resume uploaded."); refreshStatus(); }
+  catch (err) { toast(err.message, true); }
+  finally { busy(e.target, false); }
+};
+
+// Analyze
+$("analyzeBtn").onclick = async (e) => {
+  const body = { job_url: $("analyzeUrl").value.trim(), jd_text: $("analyzeText").value.trim() };
+  if (!body.job_url && !body.jd_text) return toast("Add a job link or paste the description.", true);
+  busy(e.target, true, "Analyzing…");
+  try {
+    const r = await api("/api/analyze", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+    renderReport(r);
+  } catch (err) { toast(err.message, true); }
+  finally { busy(e.target, false); }
+};
+
+function chip(list, el) {
+  el.innerHTML = (list && list.length) ? list.map(k => `<span>${k}</span>`).join("") : '<span style="opacity:.5">none</span>';
+}
+function bullets(list, el) {
+  el.innerHTML = (list && list.length) ? list.map(x => `<li>${x}</li>`).join("") : '<li style="opacity:.5">—</li>';
+}
+function renderReport(r) {
+  $("reportCard").style.display = "block";
+  $("reportTitle").textContent = r.job_title ? ("Match report — " + r.job_title) : "Match report";
+  $("scoreNum").textContent = r.overall_score;
+  $("scoreBar").style.width = Math.max(3, Math.min(100, r.overall_score)) + "%";
+  const b = $("chanceBadge"); b.textContent = r.call_chance + " chance"; b.className = "badge " + r.call_chance;
+  $("reportSummary").textContent = r.summary + (r.engine === "keyword" ? "  (keyword-based — add an AI key for deeper analysis)" : "");
+  chip(r.matched_keywords, $("kwMatched"));
+  chip(r.missing_keywords, $("kwMissing"));
+  bullets(r.strengths, $("strengths"));
+  bullets(r.improvements, $("improvements"));
+  $("improveBtn").style.display = r.can_rewrite ? "inline-block" : "none";
+  $("improveHint").textContent = r.can_rewrite ? "" : "Add an OpenAI key in Setup to enable AI rewriting.";
+  $("improvedCard").style.display = "none";
+  $("reportCard").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+// Improve
+$("improveBtn").onclick = async (e) => {
+  busy(e.target, true, "Rewriting…");
+  try { const d = await api("/api/improve", {method:"POST"});
+        $("improvedCard").style.display = "block"; $("improvedMd").textContent = d.markdown;
+        $("downloadImproved").style.display = d.docx ? "inline-block" : "none";
+        toast("Improved resume ready."); $("improvedCard").scrollIntoView({behavior:"smooth"}); }
+  catch (err) { toast(err.message, true); }
+  finally { busy(e.target, false); }
+};
+
+// Apply
+$("applyBtn").onclick = async (e) => {
+  const url = $("applyUrl").value.trim();
+  if (!url) return toast("Paste a job link.", true);
+  busy(e.target, true, "Applying…");
+  try {
+    const d = await api("/api/apply", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({url, auto: $("autoSubmit").checked})});
+    $("applyResultCard").style.display = "block";
+    $("applyResultTitle").textContent = (d.title || "Result") + " — " + d.status.replace(/_/g," ");
+    $("applyResultMsg").textContent = d.message;
+    $("applyLog").textContent = (d.log || []).join("\n") || "(no fields)";
+    $("submitRow").style.display = (!d.submitted && d.status === "filled_pending_review") ? "flex" : "none";
+    toast("Done: " + d.status);
+    loadHistory();
+  } catch (err) { toast(err.message, true); }
+  finally { busy(e.target, false); }
+};
+$("submitNowBtn").onclick = async (e) => {
+  busy(e.target, true, "Submitting…");
+  try { const d = await api("/api/submit", {method:"POST"});
+        $("applyResultMsg").textContent = d.message; toast(d.message);
+        if (d.ok) $("submitRow").style.display = "none"; loadHistory(); }
+  catch (err) { toast(err.message, true); }
+  finally { busy(e.target, false); }
+};
+
+// History
+async function loadHistory() {
+  try {
+    const d = await api("/api/history");
+    const rows = d.applications;
+    $("historyBody").innerHTML = rows.length ? rows.map(a => `
+      <tr>
+        <td>${(a.applied_at||"").replace("T"," ").slice(0,16)}</td>
+        <td>${a.company||""}</td>
+        <td>${a.title||""}</td>
+        <td><span class="st ${a.status}">${a.status.replace(/_/g," ")}</span></td>
+        <td><a href="${a.url}" target="_blank">link</a></td>
+      </tr>`).join("") : '<tr><td colspan="5" style="color:var(--muted)">No applications yet.</td></tr>';
+  } catch (e) {}
+}
+$("refreshHistory").onclick = loadHistory;
+
+// Init
+loadSettings(); refreshStatus();
+</script>
+</body>
+</html>
