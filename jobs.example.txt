@@ -1,0 +1,4 @@
+# One job URL per line. Lines starting with '#' are ignored.
+# Use with:  python -m jobagent batch jobs.example.txt
+# https://boards.greenhouse.io/example/jobs/1234567
+# https://jobs.lever.co/example/abcdef-1234
